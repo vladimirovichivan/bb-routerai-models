@@ -47,6 +47,16 @@ test("emits only selected models, using the RouterAI id as upstream id", () => {
   assert.equal(built.modelCount, 2);
 });
 
+test("the model name in the config is the shortened picker name", () => {
+  const built = buildManagedConfig({
+    models: [model(1, { name: "Anthropic: Claude Haiku 5.5" })],
+    selection: { activeIds: ["vendor/model-1"], reasoning: {} },
+    apiKey: "k",
+  });
+  const entry = JSON.parse(built.json).provider["routerai-managed"].models["vendor-model-1"];
+  assert.equal(entry.name, "Claude Haiku 5.5 (Anthropic)");
+});
+
 test("copies limits, cost, capabilities and modalities", () => {
   const built = buildManagedConfig({
     models: [model(1, { input: ["text", "image"] })],

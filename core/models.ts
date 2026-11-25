@@ -90,6 +90,33 @@ function priceOf(
 }
 
 /**
+ * Name the picker shows. OpenCode prefixes every ACP option with
+ * `routerai-managed/` (about 17 of the ~40 characters bb's model picker has
+ * room for) and bb truncates the tail, so a raw RouterAI name such as
+ * `Anthropic: Claude Haiku 5.5` loses exactly the part that tells versions
+ * apart. Moving the vendor to the end keeps the version inside the visible
+ * slice: `Claude Haiku 5.5 (Anthropic)`.
+ *
+ * RouterAI names its aliases the same as the pinned release they point at
+ * (`~anthropic/claude-sonnet-latest` is also `Claude Sonnet 5.5`), so an alias
+ * gets `(latest)` instead of the vendor to stay distinguishable in the list.
+ */
+export function modelDisplayName(model: Pick<CatalogModel, "id" | "name">): string {
+  const full = model.name.trim().replace(/\s+/g, " ");
+  const match = /^([^:]{1,60}):\s+(.+)$/.exec(full);
+  let label = full;
+  let vendor = "";
+  if (match !== null) {
+    label = match[2].trim();
+    const candidate = match[1].trim();
+    // `DeepSeek: DeepSeek V4.1 Flash` already says its vendor.
+    if (!label.toLowerCase().startsWith(candidate.toLowerCase())) vendor = candidate;
+  }
+  if (model.id.startsWith("~")) return `${label} (latest)`;
+  return vendor === "" ? label : `${label} (${vendor})`;
+}
+
+/**
  * Selection order after enabling or disabling one model. The order is the order
  * the user enabled models, so the first one stays bb's default for the
  * provider; ids that vanished from the catalog keep their place.

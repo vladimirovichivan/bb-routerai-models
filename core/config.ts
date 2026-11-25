@@ -6,7 +6,7 @@
 // a `$schema`, `enabled_providers` limited to this provider, per-token prices
 // in rubles, and cache prices falling back to the input price.
 import type { CatalogModel } from "./models.ts";
-import { REASONING_DEFAULT } from "./models.ts";
+import { modelDisplayName, REASONING_DEFAULT } from "./models.ts";
 
 export const MANAGED_PROVIDER_ID = "routerai-managed";
 export const MANAGED_PROVIDER_NAME = "RouterAI Managed";
@@ -112,7 +112,7 @@ function modelEntry(model: CatalogModel, level: string | undefined) {
   const useLevel =
     level !== undefined && level !== REASONING_DEFAULT && model.levels.includes(level);
   const entry: Record<string, unknown> = {
-    name: model.name,
+    name: modelDisplayName(model),
     id: model.id,
     limit: {
       context: model.context,

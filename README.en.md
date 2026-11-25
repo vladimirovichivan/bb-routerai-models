@@ -66,6 +66,14 @@ Instead of storing the key in plugin settings, you can export
 After `apply`, reopen the model picker: bb caches a provider's model list for
 about 10 minutes.
 
+Picker rows read `routerai-managed/<model name>`: the prefix comes from
+OpenCode and the tail of a long name is truncated, so the plugin moves the
+vendor to the end to keep the version visible — `Anthropic: Claude Haiku 5.5`
+becomes `Claude Haiku 5.5 (Anthropic)`. The vendor is omitted when the name
+already contains it (`DeepSeek: DeepSeek V4.1 Flash` → `DeepSeek V4.1 Flash`),
+and alias ids (`~vendor/...-latest`) are marked `(latest)` so they cannot be
+confused with the pinned release.
+
 Reinstalling from another path keeps settings, the secret and schedules,
 because bb keys them by plugin id.
 

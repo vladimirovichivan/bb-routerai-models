@@ -33,9 +33,9 @@ ACP-провайдера `routerai-managed` — «managed-профиль OpenCod
 | Что | Значение |
 | --- | --- |
 | Репозиторий | корень этого репозитория, файлы в корне (одно-плагинный репозиторий) |
-| Версия | `0.0.2` (`package.json`) |
+| Версия | `0.0.3` (`package.json`) |
 | Совместимость | bb `>=0.50`, plugin SDK `>=0.6.157`, OpenCode 2.x |
-| Тесты | 48, `npm test` — зелёные; `npx tsc --noEmit` — чисто |
+| Тесты | 50, `npm test` — зелёные; `npx tsc --noEmit` — чисто |
 | Лицензия | MIT (`LICENSE`) |
 
 Выбор моделей, ключ и кэш каталога живут только в локальной установке bb и в
@@ -166,6 +166,12 @@ core/provider.ts buildProviderDeclaration()  →  bb.providers.register()
   самого OpenCode.
 - **`applyNow()` сериализован** через `applyChain`, чтобы быстрые переключения
   не гонялись за регистрацией.
+- **Имя модели в пикере — вычисляемое, не каталожное.** OpenCode сам добавляет
+  префикс `routerai-managed/` (~17 из ~40 видимых символов), а bb обрезает
+  хвост, поэтому `models.<key>.name` берётся из `modelDisplayName()`
+  (`core/models.ts`): вендор уезжает в конец (`Claude Haiku 5.5 (Anthropic)`),
+  alias-id `~vendor/...-latest` получает `(latest)`. Каталожное `name`
+  остаётся для сортировки и страницы плагина.
 - **Realtime.** После любого изменения публикуется `routerai-managed-changed`;
   страница подписана через `useRealtime` и перечитывает состояние RPC `state`.
 
@@ -179,7 +185,7 @@ core/provider.ts buildProviderDeclaration()  →  bb.providers.register()
 | `server.ts` | вся серверная часть: настройки, KV, refresh, регистрация провайдера, `contributeEnv`, RPC, CLI, фоновый сервис, dispose |
 | `host.ts` | реэкспорт `experimental_acpProviderBridge` + пустой host-entry |
 | `app.tsx` | страница в боковой панели: статус, размер конфига, кнопка apply, фильтр, списки активных/выключенных; у активной модели — галочка слева, название, ключ провайдера, цены и выпадающий список уровней reasoning справа |
-| `core/models.ts` | тип `CatalogModel`, `normalizeCatalog`, фильтр text→text+tools, цены ₽/1M, `modelKey`, уровни reasoning, `toggledActiveIds` |
+| `core/models.ts` | тип `CatalogModel`, `normalizeCatalog`, фильтр text→text+tools, цены ₽/1M, `modelKey`, `modelDisplayName` (имя для пикера), уровни reasoning, `toggledActiveIds` |
 | `core/config.ts` | `buildManagedConfig`, `MAX_CONFIG_BYTES = 24 KiB`, `MAX_OUTPUT_TOKENS = 32 000`, маппинг модальностей, `redactConfig`, `ConfigTooLargeError` |
 | `core/provider.ts` | декларация провайдера (`acpDialect` — нативный `opencode` по умолчанию или generic `acp` при `disableApprovalPrompts`; `fork: tip`, `permissionModes`, `reasoningLevels`), `ACP_LAUNCH_ENV`, `acpCommand`, `providerSignature` |
 | `core/sort.ts` | группировка активных/выключенных по имени, `missingIds`, `sanitizeReasoning` |
@@ -188,7 +194,7 @@ core/provider.ts buildProviderDeclaration()  →  bb.providers.register()
 | `PLUGIN_OVERVIEW.md` | длинное описание для страницы в маркетплейсе (≤ 4000 символов) |
 | `docs/PUBLISHING.md` | как выпустить релиз и открыть PR в `get-bb/marketplace` |
 | `.github/workflows/ci.yml` | GitHub Actions: `npm ci`, тесты, `tsc --noEmit` |
-| `tests/*.test.ts` | 48 тестов: каталог, конфиг, провайдер, refresh-сообщения, сортировка, неизменность пользовательского конфига |
+| `tests/*.test.ts` | 50 тестов: каталог, конфиг, провайдер, refresh-сообщения, сортировка, неизменность пользовательского конфига |
 | `skills/routerai-managed/SKILL.md` | скилл для агентов bb (как включать модели, обновлять каталог, применять конфиг) |
 | `tools/acp-probe.mjs` | dev-утилита: прогнать конфиг через `opencode acp` и увидеть, какие модели реально дошли до агента |
 | `README.md` | пользовательская документация, установка, команды, spike A–D |
@@ -265,7 +271,7 @@ bb routerai-managed show-config
 
 ```powershell
 npm ci                      # зависимости (один раз / после смены lock)
-npm test                    # 48 тестов, без сети
+npm test                    # 50 тестов, без сети
 npx tsc --noEmit            # типы
 bb plugin build             # dist/
 bb plugin reload routerai-managed-profile
@@ -469,6 +475,14 @@ $f = (Get-ChildItem "$env:USERPROFILE\.bb\logs\server*.log" |
   режимами на тредах с `accept-edits`: с настройкой `bb thread interactions
   list` → `[]`, без неё появляется `approval`; после теста настройка возвращена
   во включённое состояние. Тесты — `tests/provider.test.ts`.
+- **2026-11-24. Версия модели в пикере.** Строка пикера — это
+  `routerai-managed/<name>`: префикс добавляет сам OpenCode (проверено пробой
+  ACP: `option.name = "routerai-managed/Anthropic: Claude Haiku 5.5"`), а bb
+  обрезает хвост, из-за чего версия пропадала. Теперь `models.<key>.name`
+  строит `modelDisplayName()`: вендор в конце (`Claude Haiku 5.5
+  (Anthropic)`), без дублирования, alias-id `~…-latest` → `(latest)`.
+  Инвариант: `CatalogModel.name` остаётся каталожным (сортировка, страница,
+  CLI), сокращение применяется только при сборке конфига.
 
 ---
 

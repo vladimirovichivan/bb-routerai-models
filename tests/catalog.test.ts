@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   isUsableChatModel,
   missingSelectionIds,
+  modelDisplayName,
   modelKey,
   normalizeCatalog,
   REASONING_EFFORT_LEVELS,
@@ -122,6 +123,30 @@ test("model keys are slugged and unique", () => {
   assert.deepEqual(
     models.map((model) => model.key),
     ["same-id", "same-id-2"],
+  );
+});
+
+test("picker names keep the version and move the vendor to the end", () => {
+  // bb shows ~40 characters of `routerai-managed/<name>`, so the tail is what
+  // gets cut; the version must not be at the end of the raw catalog name.
+  assert.equal(
+    modelDisplayName({ id: "anthropic/claude-haiku-5.5", name: "Anthropic: Claude Haiku 5.5" }),
+    "Claude Haiku 5.5 (Anthropic)",
+  );
+  // The vendor is already in the name: no parenthetical noise.
+  assert.equal(
+    modelDisplayName({ id: "deepseek/deepseek-v4.1-flash", name: "DeepSeek: DeepSeek V4.1 Flash" }),
+    "DeepSeek V4.1 Flash",
+  );
+  // A name without a vendor prefix stays as is.
+  assert.equal(
+    modelDisplayName({ id: "reka/reka-edge", name: "Reka Edge" }),
+    "Reka Edge",
+  );
+  // Alias ids share the pinned release's name, so they get a marker instead.
+  assert.equal(
+    modelDisplayName({ id: "~anthropic/claude-sonnet-latest", name: "Anthropic: Claude Sonnet 5.5" }),
+    "Claude Sonnet 5.5 (latest)",
   );
 });
 

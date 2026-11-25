@@ -1,6 +1,6 @@
 {
   "name": "bb-plugin-routerai-managed-profile",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Managed OpenCode profile for RouterAI in bb: cached model catalog, model picking with reasoning levels and ruble prices, inline OPENCODE_CONFIG_CONTENT delivered through bb's ACP bridge.",
   "license": "MIT",
   "repository": {
