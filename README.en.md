@@ -174,7 +174,7 @@ run side by side.
 
 ```bash
 npm ci
-node --test tests      # 48 tests, no network
+npm test      # 48 tests, no network
 npx tsc --noEmit
 bb plugin build
 bb plugin reload routerai-managed-profile

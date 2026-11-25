@@ -234,7 +234,7 @@ RouterAI содержит модели с входом `file` (`amazon/nova-2-li
 
 ```bash
 npm ci
-node --test tests      # 46 тестов, без сети
+npm test      # 48 тестов, без сети
 npx tsc --noEmit
 bb plugin build
 bb plugin reload routerai-managed-profile

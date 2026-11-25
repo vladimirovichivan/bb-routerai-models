@@ -18,7 +18,7 @@
   (≤ 4000 символов, только `##`-заголовки, ссылки только абсолютные `https`,
   без HTML, картинок и таблиц).
 - `.gitignore` без `dist/`, `node_modules/`, `.env`, логов.
-- Зелёные `node --test tests`, `npx tsc --noEmit`, `bb plugin build`.
+- Зелёные `npm test`, `npx tsc --noEmit`, `bb plugin build`.
 - Ни ключа, ни личных путей, ни имён машин, ни id проектов.
 
 Проверить историю перед публикацией:
@@ -65,7 +65,7 @@ bb plugin install git:https://github.com/<owner>/bb-routerai-models@^0.0.2
 подхватываются без нового PR.
 
 CI включён: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) запускает
-`npm ci`, `node --test tests` и `npx tsc --noEmit` на push в `main` и на pull
+`npm ci`, `npm test` и `npx tsc --noEmit` на push в `main` и на pull
 request. Если у `gh` нет scope `workflow`, он не сможет запушить файл в
 `.github/workflows/` — добавьте scope командой `gh auth refresh -s workflow`.
 

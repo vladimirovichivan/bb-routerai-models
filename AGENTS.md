@@ -35,7 +35,7 @@ ACP-провайдера `routerai-managed` — «managed-профиль OpenCod
 | Репозиторий | корень этого репозитория, файлы в корне (одно-плагинный репозиторий) |
 | Версия | `0.0.2` (`package.json`) |
 | Совместимость | bb `>=0.50`, plugin SDK `>=0.6.157`, OpenCode 2.x |
-| Тесты | 48, `node --test tests` — зелёные; `npx tsc --noEmit` — чисто |
+| Тесты | 48, `npm test` — зелёные; `npx tsc --noEmit` — чисто |
 | Лицензия | MIT (`LICENSE`) |
 
 Выбор моделей, ключ и кэш каталога живут только в локальной установке bb и в
@@ -265,7 +265,7 @@ bb routerai-managed show-config
 
 ```powershell
 npm ci                      # зависимости (один раз / после смены lock)
-node --test tests           # 48 тестов, без сети
+npm test                    # 48 тестов, без сети
 npx tsc --noEmit            # типы
 bb plugin build             # dist/
 bb plugin reload routerai-managed-profile
@@ -419,7 +419,7 @@ $f = (Get-ChildItem "$env:USERPROFILE\.bb\logs\server*.log" |
 4. Соблюдать инварианты §4. Особое внимание: не менять пользовательский
    `opencode.json`, не сбрасывать выбор моделей и уровни reasoning, не
    печатать ключ.
-5. После правок обязательно: `node --test tests`, `npx tsc --noEmit`,
+5. После правок обязательно: `npm test`, `npx tsc --noEmit`,
    `bb plugin build`, `bb plugin reload routerai-managed-profile`, затем
    `bb routerai-managed status` и `node tools/acp-probe.mjs`.
 6. Если для проверки пришлось менять выбор — восстановить исходный набор и
@@ -482,5 +482,5 @@ $f = (Get-ChildItem "$env:USERPROFILE\.bb\logs\server*.log" |
    этого репозитория и запущен.
 4. `bb routerai-managed status` и `bb provider models routerai-managed` —
    зафиксировать исходное состояние (каталог, выбор, конфиг, провайдер).
-5. `node --test tests`, `npx tsc --noEmit` — базовая линия зелёная.
+5. `npm test`, `npx tsc --noEmit` — базовая линия зелёная.
 6. Только после этого менять код; проверять по §9; не забывать §14.

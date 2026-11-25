@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "bb plugin build",
-    "test": "node --test tests",
+    "test": "node --test \"tests/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"
   },
   "bb": {
