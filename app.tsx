@@ -502,7 +502,7 @@ export default definePluginApp((app) => {
   app.slots.navPanel({
     id: "routerai-managed",
     title: "RouterAI Managed",
-    icon: "Sparkles",
+    icon: "AiContentGenerator01",
     path: "routerai-managed",
     component: RouteraiPage,
   });

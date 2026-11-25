@@ -35,7 +35,7 @@
     "name": "RouterAI Managed Profile",
     "description": "Managed OpenCode profile for RouterAI: cached model catalog, model picking with reasoning levels and RUB prices, inline OPENCODE_CONFIG_CONTENT delivered through bb's own ACP provider. Never touches the user's opencode.json.",
     "branding": {
-      "icon": "Sparkles"
+      "icon": "AiContentGenerator01"
     },
     "server": "./server.ts",
     "host": "./host.ts",

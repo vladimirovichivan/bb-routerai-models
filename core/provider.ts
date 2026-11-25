@@ -95,7 +95,7 @@ export function buildProviderDeclaration(
     id: MANAGED_PROVIDER_ID,
     displayName: MANAGED_PROVIDER_DISPLAY_NAME,
     family: "acp",
-    icon: "Sparkles",
+    icon: "Toolbox",
     strings: {
       signInHint:
         "Задайте ключ RouterAI в настройках плагина RouterAI Managed Profile или выполните `bb routerai-managed refresh`.",
