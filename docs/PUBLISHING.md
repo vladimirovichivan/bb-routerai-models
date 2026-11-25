@@ -64,14 +64,10 @@ bb plugin install git:https://github.com/<owner>/bb-routerai-models@^0.0.2
 Для магазина удобнее `">=0.0.2 <1.0.0"` — тогда новые `0.0.x` и `0.1.x`
 подхватываются без нового PR.
 
-`gh` без scope `workflow` не может запушить файл в `.github/workflows/`, поэтому
-готовый workflow лежит в [`docs/ci.yml`](ci.yml). Включить CI:
-
-```bash
-gh auth refresh -s workflow
-mkdir -p .github/workflows
-git mv docs/ci.yml .github/workflows/ci.yml
-```
+CI включён: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) запускает
+`npm ci`, `node --test tests` и `npx tsc --noEmit` на push в `main` и на pull
+request. Если у `gh` нет scope `workflow`, он не сможет запушить файл в
+`.github/workflows/` — добавьте scope командой `gh auth refresh -s workflow`.
 
 ## 2. Запись в каталоге BB Community
 

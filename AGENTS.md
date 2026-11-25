@@ -187,6 +187,7 @@ core/provider.ts buildProviderDeclaration()  →  bb.providers.register()
 | `core/state.ts` | wire-типы RPC и страницы (без рантайм-импортов) |
 | `PLUGIN_OVERVIEW.md` | длинное описание для страницы в маркетплейсе (≤ 4000 символов) |
 | `docs/PUBLISHING.md` | как выпустить релиз и открыть PR в `get-bb/marketplace` |
+| `.github/workflows/ci.yml` | GitHub Actions: `npm ci`, тесты, `tsc --noEmit` |
 | `tests/*.test.ts` | 48 тестов: каталог, конфиг, провайдер, refresh-сообщения, сортировка, неизменность пользовательского конфига |
 | `skills/routerai-managed/SKILL.md` | скилл для агентов bb (как включать модели, обновлять каталог, применять конфиг) |
 | `tools/acp-probe.mjs` | dev-утилита: прогнать конфиг через `opencode acp` и увидеть, какие модели реально дошли до агента |
@@ -403,8 +404,7 @@ $f = (Get-ChildItem "$env:USERPROFILE\.bb\logs\server*.log" |
    включённая» (например, `defaultModel` в settings → порядок `activeIds`).
 9. **Учёт расходов** через usage-хуки bb (`maintenance.usage: true`) либо
    отображение расчётной цены за типичный тред.
-10. **CI**: GitHub Actions с `npm ci && node --test tests && npx tsc --noEmit`.
-11. **Публикация** как отдельного плагина (git-источник), если появится
+10. **Публикация** как отдельного плагина (git-источник), если появится
     необходимость ставить на другие машины.
 
 ---
