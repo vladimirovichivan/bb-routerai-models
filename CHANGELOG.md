@@ -5,8 +5,8 @@
 First public release.
 
 - Provider `routerai-managed` in bb built from a cached RouterAI catalog.
-- Sidebar page: catalog filter, model toggles, per-model reasoning slider,
-  ruble prices and generated config size.
+- Sidebar page: catalog filter, model checkboxes, per-model reasoning level
+  selector, ruble prices and generated config size.
 - CLI: `refresh`, `list`, `status`, `enable`, `disable`, `reasoning`, `apply`,
   `approvals`, `show-config`, each with `--json`.
 - Inline `OPENCODE_CONFIG_CONTENT` delivered through bb's ACP bridge, with a

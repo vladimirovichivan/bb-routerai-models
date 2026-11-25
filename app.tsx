@@ -5,7 +5,7 @@
 // sorting, toggling models, and changing reasoning levels never touch the
 // network: they read the plugin's cache and write the selection.
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { definePluginApp, useRealtime, useRpc } from "@get-bb/plugin-sdk/app";
 import type { rpcContract } from "./server";
 import type { CatalogModel, PluginState, RefreshResult } from "./core/state";
@@ -17,32 +17,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const CHANGED_CHANNEL = "routerai-managed-changed";
-
-/** Slider order: from the provider default / lowest to the highest. */
-const REASONING_ORDER = ["default", "low", "medium", "high", "xhigh"] as const;
-
-const REASONING_LABELS: Record<string, string> = {
-  default: "По умолчанию",
-  low: "Низкий",
-  medium: "Средний",
-  high: "Высокий",
-  xhigh: "Максимальный",
-};
-
-function reasoningRank(level: string): number {
-  const index = REASONING_ORDER.indexOf(level as (typeof REASONING_ORDER)[number]);
-  return index === -1 ? REASONING_ORDER.length : index;
-}
-
-function orderedLevels(levels: readonly string[]): string[] {
-  return [...new Set(levels)].sort(
-    (left, right) => reasoningRank(left) - reasoningRank(right) || left.localeCompare(right),
-  );
-}
-
-function reasoningLabel(level: string): string {
-  return REASONING_LABELS[level] ?? level;
-}
 
 function formatTime(value: number | null | undefined): string {
   if (value === null || value === undefined || value === 0) return "—";
@@ -158,120 +132,6 @@ function ModelBadges({ model }: { model: CatalogModel }) {
   );
 }
 
-function ReasoningSlider({
-  modelName,
-  levels,
-  value,
-  disabled,
-  onChange,
-}: {
-  modelName: string;
-  levels: string[];
-  value: string | undefined;
-  disabled: boolean;
-  onChange: (next: string) => void;
-}) {
-  const ordered = orderedLevels(levels);
-  const count = ordered.length;
-
-  if (count === 0) {
-    return (
-      <div className="flex items-center gap-3">
-        <div aria-hidden="true" className="relative h-6 min-w-[120px] max-w-[280px] flex-1">
-          <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-border/60" />
-          <span className="absolute left-0 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-border/60" />
-          <span className="absolute right-0 top-1/2 size-2 translate-x-1/2 -translate-y-1/2 rounded-full bg-border/60" />
-        </div>
-        <span className="shrink-0 text-xs text-muted-foreground">не управляется</span>
-      </div>
-    );
-  }
-
-  const selected = Math.max(0, ordered.indexOf(value ?? "default"));
-  const lastIndex = Math.max(count - 1, 0);
-  const position = (index: number) => (lastIndex === 0 ? 50 : (index / lastIndex) * 100);
-  const thumb = position(selected);
-  const progress = count <= 1 ? 100 : thumb;
-  const current = ordered[selected] ?? ordered[0] ?? "default";
-
-  const commit = (index: number) => {
-    const next = ordered[Math.min(Math.max(index, 0), lastIndex)];
-    if (next !== undefined && next !== current) onChange(next);
-  };
-
-  const pick = (event: MouseEvent<HTMLDivElement>) => {
-    if (disabled) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    if (rect.width <= 0 || lastIndex === 0) return;
-    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-    commit(Math.round(ratio * lastIndex));
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (disabled) return;
-    let index = selected;
-    if (event.key === "ArrowRight" || event.key === "ArrowUp") index = selected + 1;
-    else if (event.key === "ArrowLeft" || event.key === "ArrowDown") index = selected - 1;
-    else if (event.key === "Home") index = 0;
-    else if (event.key === "End") index = lastIndex;
-    else return;
-    event.preventDefault();
-    commit(index);
-  };
-
-  return (
-    <div className="flex items-center gap-3">
-      <div
-        role="slider"
-        tabIndex={disabled ? -1 : 0}
-        aria-label={`Уровень размышлений для ${modelName}`}
-        aria-valuemin={0}
-        aria-valuemax={lastIndex}
-        aria-valuenow={selected}
-        aria-valuetext={reasoningLabel(current)}
-        aria-disabled={disabled}
-        onClick={pick}
-        onKeyDown={handleKeyDown}
-        className={cn(
-          "relative h-6 min-w-[120px] max-w-[280px] flex-1 touch-none select-none rounded-full outline-none",
-          "focus-visible:ring-2 focus-visible:ring-blue-500/50",
-          disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-        )}
-      >
-        <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-border" />
-        <div
-          className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-blue-500"
-          style={{ width: `${progress}%` }}
-        />
-        {ordered.map((level, index) => (
-          <span
-            key={level}
-            aria-hidden="true"
-            className={cn(
-              "absolute top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full",
-              index <= selected ? "bg-blue-500" : "bg-border",
-            )}
-            style={{ left: `${position(index)}%` }}
-          />
-        ))}
-        <span
-          aria-hidden="true"
-          className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-blue-500 shadow-sm"
-          style={{ left: `${thumb}%` }}
-        />
-      </div>
-      <span
-        className={cn(
-          "shrink-0 whitespace-nowrap text-xs font-medium",
-          disabled && "text-muted-foreground",
-        )}
-      >
-        {reasoningLabel(current)}
-      </span>
-    </div>
-  );
-}
-
 function ActiveModelRow({
   model,
   level,
@@ -285,44 +145,50 @@ function ActiveModelRow({
   onReasoning: (next: string) => void;
   busy: boolean;
 }) {
+  const hasLevels = model.levels.length > 0;
   return (
-    <li className="flex flex-wrap items-start gap-x-4 gap-y-2 px-4 py-3 text-sm">
-      <div className="min-w-0 flex-[1_1_18rem]">
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5 text-sm">
+      <Checkbox
+        checked
+        disabled={busy}
+        onCheckedChange={(checked) => onToggle(checked === true)}
+        aria-label={`Выключить ${model.name}`}
+      />
+      <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2" title={model.name}>
           <span className="truncate font-medium">{model.name}</span>
           <ModelBadges model={model} />
         </div>
-        <div className="truncate font-mono text-[11px] text-muted-foreground" title={model.id}>
+        <div className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground" title={model.id}>
           {model.key}
         </div>
-        <div className="mt-2">
-          <ReasoningSlider
-            modelName={model.name}
-            levels={model.levels}
-            value={level}
+      </div>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span title="Контекст">ctx {formatContext(model.context)}</span>
+        <span title="Цена за 1M токенов, RUB (вход / выход)">
+          {formatPrice(model.prices.input)} / {formatPrice(model.prices.output)}
+        </span>
+      </div>
+      {hasLevels ? (
+        <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          reasoning
+          <select
+            aria-label={`Уровень reasoning для ${model.name}`}
+            className="h-7 rounded-md border border-border bg-background px-1.5 text-xs text-foreground"
+            value={level ?? "default"}
             disabled={busy}
-            onChange={onReasoning}
-          />
-        </div>
-      </div>
-      <div className="ml-auto flex items-center gap-2 self-start">
-        <div className="text-right text-[11px] leading-4 text-muted-foreground">
-          <div title="Контекст">ctx {formatContext(model.context)}</div>
-          <div title="Цена за 1M токенов, RUB (вход / выход)">
-            {formatPrice(model.prices.input)} / {formatPrice(model.prices.output)}
-          </div>
-        </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="size-7 shrink-0 text-muted-foreground"
-          disabled={busy}
-          onClick={() => onToggle(false)}
-          aria-label={`Выключить ${model.name}`}
-        >
-          <Icon name="X" className="size-4" />
-        </Button>
-      </div>
+            onChange={(event) => onReasoning(event.target.value)}
+          >
+            {model.levels.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : model.reasoning ? (
+        <span className="text-xs text-muted-foreground">уровни не заявлены</span>
+      ) : null}
     </li>
   );
 }

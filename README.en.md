@@ -11,7 +11,7 @@ for it.
 
 Русская документация: [README.md](README.md).
 
-![Plugin page: enabled models with reasoning sliders and prices](screenshots/routerai-managed-profile/panel.png)
+![Plugin page: enabled models with reasoning level selectors and prices](screenshots/routerai-managed-profile/panel.png)
 
 ## What you get
 
@@ -20,8 +20,9 @@ for it.
 - A cached catalog on the bb server. The network is touched only by an explicit
   "Refresh models" action (`bb routerai-managed refresh`), plus an optional
   daily background refresh that is off by default.
-- A sidebar page with a catalog filter, per-model toggles, a reasoning slider
-  under every enabled model, and the size of the generated inline config.
+- A sidebar page with a catalog filter, per-model toggles, a reasoning level
+  selector on the right of every enabled model, and the size of the generated
+  inline config.
 - A `bb routerai-managed …` CLI for agents and terminals.
 - Coexistence with the official `routerai` plugin: different provider id,
   different command name, different storage keys.

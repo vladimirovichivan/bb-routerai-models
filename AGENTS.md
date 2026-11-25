@@ -178,7 +178,7 @@ core/provider.ts buildProviderDeclaration()  →  bb.providers.register()
 | `package.json` | манифест bb: `server`, `host`, `app`, `experimental_providers` (`kind: agent`, `id: routerai-managed`) |
 | `server.ts` | вся серверная часть: настройки, KV, refresh, регистрация провайдера, `contributeEnv`, RPC, CLI, фоновый сервис, dispose |
 | `host.ts` | реэкспорт `experimental_acpProviderBridge` + пустой host-entry |
-| `app.tsx` | страница в боковой панели: статус, размер конфига, кнопка apply, фильтр, списки активных/выключенных; у активной модели — название, ключ провайдера, ползунок reasoning и цены справа |
+| `app.tsx` | страница в боковой панели: статус, размер конфига, кнопка apply, фильтр, списки активных/выключенных; у активной модели — галочка слева, название, ключ провайдера, цены и выпадающий список уровней reasoning справа |
 | `core/models.ts` | тип `CatalogModel`, `normalizeCatalog`, фильтр text→text+tools, цены ₽/1M, `modelKey`, уровни reasoning, `toggledActiveIds` |
 | `core/config.ts` | `buildManagedConfig`, `MAX_CONFIG_BYTES = 24 KiB`, `MAX_OUTPUT_TOKENS = 32 000`, маппинг модальностей, `redactConfig`, `ConfigTooLargeError` |
 | `core/provider.ts` | декларация провайдера (`acpDialect` — нативный `opencode` по умолчанию или generic `acp` при `disableApprovalPrompts`; `fork: tip`, `permissionModes`, `reasoningLevels`), `ACP_LAUNCH_ENV`, `acpCommand`, `providerSignature` |
