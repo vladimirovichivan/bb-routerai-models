@@ -56,6 +56,12 @@ node tools/acp-probe.mjs
 
 - Менеджер пакетов: npm 11, Node 26 (`node --test` понимает `.ts` напрямую).
 - Зависимости ставятся `npm ci` (lock-файл в репо).
+- **`@get-bb/plugin-sdk` обязан лежать в `dependencies`, а не в
+  `devDependencies`.** `host.ts` импортирует
+  `@get-bb/plugin-sdk/provider-bridge/acp` — подачу, которую `bb plugin build`
+  собирает из собственной установки плагина. Git-установки не ставят
+  dev-зависимости, и без SDK host-артефакт не загружается. Проверять
+  `bb plugin types .` (он сам переносит пакет) и не возвращать его в dev.
 - Сборка: `bb plugin build` → `dist/` (в git не попадает).
 - Установка: `bb plugin install . --yes` (без `--yes` откажется).
 - Перезагрузка после сборки: `bb plugin reload routerai-managed-profile`.
@@ -349,6 +355,14 @@ $f = (Get-ChildItem "$env:USERPROFILE\.bb\logs\server*.log" |
   сервер); `--standalone` есть у `opencode models`.
 - **`OPENCODE_CONFIG_CONTENT` — одна переменная**: на Windows блок окружения
   процесса ограничен 32767 символами, отсюда лимит 24 КБ.
+- **Git-установка не ставит `devDependencies`.** Если host/server импортирует
+  SDK-подачу, которую build бандлит из `node_modules` плагина (например
+  `@get-bb/plugin-sdk/provider-bridge/acp`), пакет обязан быть в
+  `dependencies`; иначе свежая установка падает на загрузке host-артефакта
+  (`host.ts:7 imports ... which is not exported by either runtime`). Локальная
+  установка из папки этого не показывает — там dev-зависимости уже стоят.
+  Проверка: чистая копия без `node_modules`, `npm ci --omit=dev`,
+  `bb plugin build`.
 - **`acpDialect: "opencode"` включает принудительные разрешения bb.** Для этого
   диалекта ACP-мост патчит сессию OpenCode (`mergeOpenCodePermissionRules` в
   `provider-acp/dist/host.js`): режим `accept-edits` превращается в `ask` для
@@ -441,6 +455,13 @@ $f = (Get-ChildItem "$env:USERPROFILE\.bb\logs\server*.log" |
 ---
 
 ## 15. История решений (кратко)
+
+- **2026-11-26. SDK переехал в `dependencies`.** Свежая Git-установка 0.0.2
+  падала на `host.ts:7 imports @get-bb/plugin-sdk/provider-bridge/acp, which is
+  not exported by either runtime`: пакет лежал в `devDependencies`, а Git-
+  установки их не ставят, поэтому `bb plugin build` не мог собрать host-бандл
+  из локальной установки SDK. `bb plugin types .` переносит пакет в
+  `dependencies`; релиз 0.0.3 включает это исправление.
 
 - **2026-11-24. Архитектура A2.** Провайдер через `bb.providers.register` +
   `experimental_bridgeOptions.acpLaunchSpec`, `host.ts` реэкспортирует

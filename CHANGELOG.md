@@ -1,9 +1,15 @@
 # Changelog
 
-## 0.0.3 — 2026-11-24
+## 0.0.3 — 2026-11-26
 
-Model names in bb's picker keep their version.
+Fresh Git installs load again, and model names in bb's picker keep their
+version.
 
+- `@get-bb/plugin-sdk` moved from `devDependencies` to `dependencies`.
+  `host.ts` imports `@get-bb/plugin-sdk/provider-bridge/acp`, a subpath that
+  `bb plugin build` bundles from the plugin's own install. Git installs omit
+  dev dependencies, so the SDK was missing and the host bundle failed to load
+  (`host.ts:7 imports ... which is not exported by either runtime`).
 - bb shows `routerai-managed/<name>` and truncates the tail, and OpenCode
   supplies the prefix, so a raw `Anthropic: Claude Haiku 5.5` lost the version.
   The generated config now carries `Claude Haiku 5.5 (Anthropic)`
